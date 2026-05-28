@@ -91,7 +91,7 @@
 </header>
 
 <main>
-  <p class="effective-date">Effective date: May 18, 2026</p>
+  <p class="effective-date">Effective date: May 28, 2026</p>
 
   <div class="card">
     <h2>Overview</h2>
@@ -109,13 +109,41 @@
   <div class="card">
     <h2>Information We Access</h2>
     <p><strong>Location data</strong> — The app may request access to your device's location
-    solely to display weather forecasts relevant to your current area. Location data is sent
-    directly to the NWS public API (api.weather.gov) to retrieve forecast data. It is
-    <em>never</em> stored, logged, or transmitted to any other server.</p>
+    solely to display weather forecasts relevant to your current area. For ordinary forecast
+    and radar use, location data is sent directly to the NWS public API (api.weather.gov) and
+    is not stored on any server we operate.</p>
+    <p>If you enable <strong>push notifications</strong>, your active location is additionally
+    sent to and stored by the NOAA Alert Relay (see the &ldquo;Push Notifications&rdquo;
+    section below). The relay does not retain location history &mdash; only your current
+    active location is kept while notifications are enabled.</p>
     <p>
       You can deny location permission at any time in your device settings. The app will
       continue to work for any manually entered location.
     </p>
+  </div>
+
+  <div class="card">
+    <h2>Push Notifications</h2>
+    <p>Push notifications are <strong>opt-in</strong>. If you enable them, the app sends the
+    following to the NOAA Alert Relay, a small server we operate at
+    <code>noaa-alert-relay.nelsok.workers.dev</code> (hosted on Cloudflare Workers):</p>
+    <ul>
+      <li>Your <strong>APNs device token</strong>, a per-install identifier issued by Apple
+      that lets us deliver pushes to this device.</li>
+      <li>The <strong>latitude and longitude</strong> of your active location.</li>
+      <li>Your <strong>severity filter</strong> preference (which alert tiers should trigger
+      a push, e.g. severe or extreme).</li>
+    </ul>
+    <p>The relay periodically polls the NWS public API for active alerts, checks whether any
+    cover your active location, and sends a push through Apple's APNs service for matching
+    severe or extreme alerts. The relay does not collect your name, email, IP-based identity,
+    or any data linked to a user account.</p>
+    <p><strong>Retention.</strong> Only the current active location is stored &mdash; the
+    relay does not keep location history. Your record is removed automatically when Apple
+    reports your device token as unregistered (for example, if you uninstall the app or
+    disable notifications), or when you turn off notifications in the app's settings.</p>
+    <p><strong>Opt-out.</strong> Disable notifications in iOS Settings &rarr; Weather
+    Unofficial &rarr; Notifications, or toggle the in-app notifications switch off.</p>
   </div>
 
   <div class="card">
@@ -125,21 +153,32 @@
       <li>We do not use advertising networks or third-party analytics SDKs.</li>
       <li>We do not sell, rent, or share any data with third parties.</li>
       <li>We do not use cookies or persistent tracking technologies.</li>
-      <li>We do not store location history or search history on any server.</li>
+      <li>We do not retain a history of your locations or searches.</li>
     </ul>
   </div>
 
   <div class="card">
     <h2>Third-Party Services</h2>
     <p>
-      The app fetches weather data exclusively from the
+      The app fetches weather data primarily from the
       <a href="https://www.weather.gov" target="_blank" rel="noopener">National Weather Service
-      public API</a> (api.weather.gov). This is a free government service; its own privacy
-      practices are governed by NOAA and the U.S. federal government.
+      public API</a> (api.weather.gov), a free U.S. government service whose privacy practices
+      are governed by NOAA.
     </p>
-    <p>
-      No other third-party services, SDKs, or APIs are used.
-    </p>
+    <p>The app also makes network requests to the following public services to render maps,
+    satellite imagery, and location search:</p>
+    <ul>
+      <li>NOAA RIDGE2 (opengeo.ncep.noaa.gov) &mdash; NEXRAD radar imagery</li>
+      <li>NASA GIBS / Earthdata (gibs.earthdata.nasa.gov) &mdash; GOES satellite imagery</li>
+      <li>OpenStreetMap / Nominatim (nominatim.openstreetmap.org) &mdash; location search</li>
+      <li>OpenStreetMap tiles (tile.openstreetmap.org) &mdash; map base layer</li>
+    </ul>
+    <p>When push notifications are enabled, the app additionally communicates with the NOAA
+    Alert Relay we operate at <code>noaa-alert-relay.nelsok.workers.dev</code>, hosted on
+    Cloudflare Workers. See the &ldquo;Push Notifications&rdquo; section above for details on
+    what is sent and stored. Cloudflare may process this traffic in accordance with its own
+    privacy practices.</p>
+    <p>No advertising, analytics, or third-party SDKs are used.</p>
   </div>
 
   <div class="card">
