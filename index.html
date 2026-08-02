@@ -56,6 +56,13 @@
       border-bottom: 2px solid #e8f0fe;
     }
 
+    h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #0a3d62;
+      margin: 20px 0 6px;
+    }
+
     p { margin-bottom: 12px; }
     p:last-child { margin-bottom: 0; }
 
@@ -68,12 +75,47 @@
     a { color: #1e6fa8; text-decoration: none; }
     a:hover { text-decoration: underline; }
 
+    code {
+      background: #eef2f7;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 0.88em;
+    }
+
     .effective-date {
       text-align: center;
       font-size: 0.85rem;
       color: #666;
       margin-bottom: 28px;
     }
+
+    .tldr {
+      background: #e8f0fe;
+      border-left: 4px solid #1e6fa8;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+    }
+
+    .tldr h2 { border-bottom: none; padding-bottom: 0; margin-bottom: 8px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 0.9rem;
+      display: block;
+      overflow-x: auto;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 8px 10px;
+      border-bottom: 1px solid #e8f0fe;
+      vertical-align: top;
+    }
+
+    th { color: #0a3d62; font-weight: 700; white-space: nowrap; }
 
     footer {
       text-align: center;
@@ -91,101 +133,181 @@
 </header>
 
 <main>
-  <p class="effective-date">Effective date: May 28, 2026</p>
+  <p class="effective-date">Effective date: August 1, 2026</p>
+
+  <div class="tldr">
+    <h2>In short</h2>
+    <p>There is no account, no advertising, no analytics, and no tracking. The app has no
+    server that stores anything about you &mdash; with one exception: if you turn on push
+    notifications, a small alert relay we operate has to keep your device's notification
+    token and the location(s) you want alerts for, because that is the only way to know
+    which device to warn when the National Weather Service issues something for your area.
+    Turning notifications off deletes that record.</p>
+  </div>
 
   <div class="card">
     <h2>Overview</h2>
     <p>
       NOAA Weather (Unofficial) is a free, independent app that displays publicly available
       weather data from the U.S. National Weather Service (weather.gov). It is not affiliated
-      with or endorsed by NOAA, the NWS, or any U.S. government agency.
+      with or endorsed by NOAA, the NWS, NASA, or any U.S. government agency.
     </p>
     <p>
-      Your privacy matters. This policy explains what information is accessed, how it is used,
-      and what is never collected or shared.
+      This policy explains what information the app accesses, where it is sent, what is
+      stored, and for how long.
     </p>
   </div>
 
   <div class="card">
-    <h2>Information We Access</h2>
-    <p><strong>Location data</strong> — The app may request access to your device's location
-    solely to display weather forecasts relevant to your current area. For ordinary forecast
-    and radar use, location data is sent directly to the NWS public API (api.weather.gov) and
-    is not stored on any server we operate.</p>
-    <p>If you enable <strong>push notifications</strong>, your active location is additionally
-    sent to and stored by the NOAA Alert Relay (see the &ldquo;Push Notifications&rdquo;
-    section below). The relay does not retain location history &mdash; only your current
-    active location is kept while notifications are enabled.</p>
-    <p>
-      You can deny location permission at any time in your device settings. The app will
-      continue to work for any manually entered location.
-    </p>
+    <h2>Location Data</h2>
+
+    <h3>When your location is read</h3>
+    <p>Location access is optional and always requested through the standard iOS permission
+    prompt. If you grant it, the app reads your device's location <strong>periodically while
+    you are using it</strong> &mdash; not only when you tap the location button. Specifically,
+    it may read your position when the app starts or returns to the foreground, when it
+    refreshes alerts, and to keep the home screen widget current. Readings are cached for
+    about 20 minutes so the app is not continuously polling your position.</p>
+    <p>The app does <strong>not</strong> use background location. It cannot read your position
+    while it is closed. Severe-weather alerts arrive by push notification, which does not
+    require background location access.</p>
+    <p>You can deny or revoke location permission at any time in iOS Settings. The app remains
+    fully usable &mdash; you can search for any city or ZIP code instead.</p>
+
+    <h3>Where your location is sent</h3>
+    <p>Your coordinates are sent to the public data services listed under
+    &ldquo;Third-Party Services&rdquo; below in order to look up the forecast, alerts, tides,
+    marine conditions, and air quality for that spot. Those requests are made directly from
+    your device. Apart from the alert relay described in the next section, we do not operate
+    any server that receives or stores your location.</p>
   </div>
 
   <div class="card">
-    <h2>Push Notifications</h2>
-    <p>Push notifications are <strong>opt-in</strong>. If you enable them, the app sends the
-    following to the NOAA Alert Relay, a small server we operate at
-    <code>noaa-alert-relay.nelsok.workers.dev</code> (hosted on Cloudflare Workers):</p>
+    <h2>Push Notifications and the Alert Relay</h2>
+    <p>Push notifications are <strong>opt-in</strong>. If you enable them, the app registers
+    with the NOAA Alert Relay, a small server we operate at
+    <code>noaa-alert-relay.nelsok.workers.dev</code>, hosted on Cloudflare Workers.</p>
+
+    <h3>What the relay receives and stores</h3>
+    <table>
+      <tr><th>Data</th><th>Why</th></tr>
+      <tr>
+        <td><strong>APNs device token</strong></td>
+        <td>A per-install identifier issued by Apple. It is the address a push is delivered
+        to; without it we cannot notify your device.</td>
+      </tr>
+      <tr>
+        <td><strong>Your selected location</strong><br>(latitude, longitude, NWS forecast
+        zone and office)</td>
+        <td>To match alerts issued for that area. The zone lets the relay use the NWS
+        zone-based alert feed directly.</td>
+      </tr>
+      <tr>
+        <td><strong>Your device's current location</strong><br>(latitude, longitude, NWS zone)</td>
+        <td>Stored <em>in addition to</em> your selected location, and only if you have granted
+        location permission, so that you are warned about where you actually are as well as
+        about your saved location &mdash; for example while travelling. Sent only when the app
+        is open; it is not tracked in the background.</td>
+      </tr>
+      <tr>
+        <td><strong>Severity filter</strong></td>
+        <td>Which alert tiers you have chosen to be notified about.</td>
+      </tr>
+      <tr>
+        <td><strong>A random installation identifier</strong></td>
+        <td>Generated on your device, unique to this install, and not derived from any device
+        or advertising identifier. It proves that a request to change or delete your
+        notification record actually came from your device. Only a one-way cryptographic hash
+        of it is stored, never the value itself.</td>
+      </tr>
+      <tr>
+        <td><strong>A record of alerts already sent to your device</strong></td>
+        <td>Alert identifiers with timestamps, kept so the same warning is not delivered to
+        you twice. Deleted automatically once the alert expires.</td>
+      </tr>
+    </table>
+
+    <p>The relay periodically checks the NWS public alert feed and sends a push through
+    Apple's APNs service when an active alert covers one of your locations. It does not
+    receive your name, email address, contacts, device identifiers beyond the APNs token, or
+    anything tied to a user account. It is never used for advertising or analytics.</p>
+
+    <h3>Retention and deletion</h3>
+    <p><strong>Only your current locations are kept &mdash; no location history.</strong> Each
+    update overwrites the previous values. Your record is deleted when you turn notifications
+    off in the app (the app asks the relay to remove it), and automatically when Apple reports
+    your device token as no longer valid, which happens when you uninstall the app or disable
+    notifications at the system level.</p>
+    <p><strong>Opt-out.</strong> Turn off the notifications switch in the app's Settings, or
+    disable notifications in iOS Settings &rarr; NOAA Weather Unofficial &rarr; Notifications.</p>
+  </div>
+
+  <div class="card">
+    <h2>Information Stored on Your Device</h2>
+    <p>The following is kept locally on your device and is never transmitted to us:</p>
     <ul>
-      <li>Your <strong>APNs device token</strong>, a per-install identifier issued by Apple
-      that lets us deliver pushes to this device.</li>
-      <li>The <strong>latitude and longitude</strong> of your active location.</li>
-      <li>Your <strong>severity filter</strong> preference (which alert tiers should trigger
-      a push, e.g. severe or extreme).</li>
+      <li>Your saved locations and the currently active one</li>
+      <li>Your settings &mdash; units, quiet hours, severity filter, briefing time</li>
+      <li>Recent alert history and which alerts you have already seen</li>
+      <li>Cached weather and map data, so the app works briefly without a connection</li>
+      <li>The random installation identifier described above</li>
     </ul>
-    <p>The relay periodically polls the NWS public API for active alerts, checks whether any
-    cover your active location, and sends a push through Apple's APNs service for matching
-    severe or extreme alerts. The relay does not collect your name, email, IP-based identity,
-    or any data linked to a user account.</p>
-    <p><strong>Retention.</strong> Only the current active location is stored &mdash; the
-    relay does not keep location history. Your record is removed automatically when Apple
-    reports your device token as unregistered (for example, if you uninstall the app or
-    disable notifications), or when you turn off notifications in the app's settings.</p>
-    <p><strong>Opt-out.</strong> Disable notifications in iOS Settings &rarr; Weather
-    Unofficial &rarr; Notifications, or toggle the in-app notifications switch off.</p>
+    <p>Deleting the app removes all of it.</p>
+  </div>
+
+  <div class="card">
+    <h2>Home Screen Widget</h2>
+    <p>The optional home screen and Lock Screen widgets read your saved location and unit
+    preferences from a storage area shared with the app, and fetch forecast data directly from
+    the National Weather Service API in order to refresh. The widget does not send anything to
+    us and has no access to your location beyond what the app has already stored.</p>
+  </div>
+
+  <div class="card">
+    <h2>Third-Party Services</h2>
+    <p>The app makes requests directly from your device to the public services below. Each has
+    its own privacy practices, and each can see your IP address as part of any normal internet
+    request. We have no control over, and receive no data from, these services.</p>
+    <table>
+      <tr><th>Service</th><th>Purpose</th><th>Receives</th></tr>
+      <tr><td>api.weather.gov<br><small>NWS / NOAA</small></td><td>Forecasts, current conditions, alerts</td><td>Coordinates or forecast zone</td></tr>
+      <tr><td>opengeo.ncep.noaa.gov<br><small>NOAA RIDGE2</small></td><td>NEXRAD radar imagery</td><td>Map area being viewed</td></tr>
+      <tr><td>gibs.earthdata.nasa.gov<br><small>NASA GIBS</small></td><td>GOES satellite imagery</td><td>Map area being viewed</td></tr>
+      <tr><td>tile.openstreetmap.org<br><small>OpenStreetMap</small></td><td>Map base layer</td><td>Map area being viewed</td></tr>
+      <tr><td>nominatim.openstreetmap.org<br><small>OpenStreetMap</small></td><td>City / ZIP search and reverse lookup</td><td>Your search text or coordinates</td></tr>
+      <tr><td>geocoding.geo.census.gov<br><small>U.S. Census Bureau</small></td><td>Determining your ZIP code from coordinates</td><td>Coordinates</td></tr>
+      <tr><td>data.epa.gov<br><small>U.S. EPA</small></td><td>UV index</td><td>Your ZIP code</td></tr>
+      <tr><td>api.tidesandcurrents.noaa.gov<br><small>NOAA CO-OPS</small></td><td>Tide predictions</td><td>Nearest tide station</td></tr>
+      <tr><td>marine-api.open-meteo.com<br><small>Open-Meteo</small></td><td>Wave and marine conditions</td><td>Coordinates</td></tr>
+      <tr><td>air-quality-api.open-meteo.com<br><small>Open-Meteo</small></td><td>Air quality index</td><td>Coordinates</td></tr>
+      <tr><td>noaa-alert-relay.nelsok.workers.dev<br><small>Operated by us, on Cloudflare</small></td><td>Background alert delivery</td><td>See the Push Notifications section</td></tr>
+    </table>
+    <p>Requests are made only when the corresponding feature is used &mdash; for example, tide
+    and marine services are contacted only for coastal locations, and the alert relay only if
+    you have enabled push notifications. Cloudflare processes relay traffic in accordance with
+    its own privacy practices.</p>
+    <p>The app contains no advertising networks, no analytics SDKs, and no third-party tracking
+    software of any kind.</p>
   </div>
 
   <div class="card">
     <h2>Information We Do Not Collect</h2>
     <ul>
-      <li>We do not collect your name, email address, or any personal identifiers.</li>
-      <li>We do not use advertising networks or third-party analytics SDKs.</li>
-      <li>We do not sell, rent, or share any data with third parties.</li>
-      <li>We do not use cookies or persistent tracking technologies.</li>
-      <li>We do not retain a history of your locations or searches.</li>
+      <li>No account, sign-in, name, or email address.</li>
+      <li>No advertising identifiers, and no participation in Apple's App Tracking
+      Transparency framework &mdash; the app collects no tracking data.</li>
+      <li>No advertising networks or third-party analytics SDKs.</li>
+      <li>No cookies or cross-app tracking technologies.</li>
+      <li>No location history, search history, or behavioural profile.</li>
+      <li>Nothing is sold, rented, or shared for marketing purposes. Ever.</li>
     </ul>
-  </div>
-
-  <div class="card">
-    <h2>Third-Party Services</h2>
-    <p>
-      The app fetches weather data primarily from the
-      <a href="https://www.weather.gov" target="_blank" rel="noopener">National Weather Service
-      public API</a> (api.weather.gov), a free U.S. government service whose privacy practices
-      are governed by NOAA.
-    </p>
-    <p>The app also makes network requests to the following public services to render maps,
-    satellite imagery, and location search:</p>
-    <ul>
-      <li>NOAA RIDGE2 (opengeo.ncep.noaa.gov) &mdash; NEXRAD radar imagery</li>
-      <li>NASA GIBS / Earthdata (gibs.earthdata.nasa.gov) &mdash; GOES satellite imagery</li>
-      <li>OpenStreetMap / Nominatim (nominatim.openstreetmap.org) &mdash; location search</li>
-      <li>OpenStreetMap tiles (tile.openstreetmap.org) &mdash; map base layer</li>
-    </ul>
-    <p>When push notifications are enabled, the app additionally communicates with the NOAA
-    Alert Relay we operate at <code>noaa-alert-relay.nelsok.workers.dev</code>, hosted on
-    Cloudflare Workers. See the &ldquo;Push Notifications&rdquo; section above for details on
-    what is sent and stored. Cloudflare may process this traffic in accordance with its own
-    privacy practices.</p>
-    <p>No advertising, analytics, or third-party SDKs are used.</p>
   </div>
 
   <div class="card">
     <h2>Children's Privacy</h2>
     <p>
-      This app does not knowingly collect any information from children under the age of 13.
-      Because no personal data is collected by the app at all, it is safe for use by all ages.
+      This app does not knowingly collect personal information from children under the age of
+      13. It requires no account and collects no personal identifiers from users of any age.
     </p>
   </div>
 
@@ -193,15 +315,16 @@
     <h2>Changes to This Policy</h2>
     <p>
       If this privacy policy changes, the updated version will be posted at this URL with a
-      revised effective date. Continued use of the app after any changes constitutes acceptance
-      of the updated policy.
+      revised effective date. Material changes affecting what is collected or how it is used
+      will be reflected here before the corresponding app update is released.
     </p>
   </div>
 
   <div class="card">
     <h2>Contact</h2>
     <p>
-      Questions or concerns about this privacy policy can be directed to:
+      Questions or concerns about this privacy policy, or requests to delete data held by the
+      alert relay, can be directed to:
       <a href="mailto:&#110;&#101;&#108;&#115;&#111;&#107;&#100;&#101;&#118;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">&#110;&#101;&#108;&#115;&#111;&#107;&#100;&#101;&#118;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;</a>
     </p>
   </div>
