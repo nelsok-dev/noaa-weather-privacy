@@ -133,7 +133,7 @@
 </header>
 
 <main>
-  <p class="effective-date">Effective date: August 1, 2026</p>
+  <p class="effective-date">Effective date: October 18, 2026</p>
 
   <div class="tldr">
     <h2>In short</h2>
@@ -258,9 +258,20 @@
   <div class="card">
     <h2>Home Screen Widget</h2>
     <p>The optional home screen and Lock Screen widgets read your saved location and unit
-    preferences from a storage area shared with the app, and fetch forecast data directly from
-    the National Weather Service API in order to refresh. The widget does not send anything to
-    us and has no access to your location beyond what the app has already stored.</p>
+    preferences from a storage area shared with the app. To refresh, they fetch forecast data
+    from the National Weather Service API. The radar widget also fetches the latest radar image
+    for the nearest NEXRAD station from radar.weather.gov. The widgets send nothing to us and
+    have no access to your location beyond what the app has already stored.</p>
+  </div>
+
+  <div class="card">
+    <h2>Shared Links</h2>
+    <p>When you share a place, the link points to nelsok-dev.github.io, which is hosted by
+    GitHub Pages. The link includes the place name and its coordinates. If you share your
+    current location, the coordinates are rounded to about 1 km. When someone opens the link,
+    the app opens to that place if they have it installed. If not, the place opens in a web
+    version of the app. GitHub receives the request like any website and can see the link. We
+    receive nothing.</p>
   </div>
 
   <div class="card">
@@ -271,6 +282,7 @@
     <table>
       <tr><th>Service</th><th>Purpose</th><th>Receives</th></tr>
       <tr><td>api.weather.gov<br><small>NWS / NOAA</small></td><td>Forecasts, current conditions, alerts</td><td>Coordinates or forecast zone</td></tr>
+      <tr><td>radar.weather.gov<br><small>NWS / NOAA</small></td><td>Latest radar image for the radar widget</td><td>Nearest radar station ID, not your location</td></tr>
       <tr><td>opengeo.ncep.noaa.gov<br><small>NOAA RIDGE2</small></td><td>NEXRAD radar imagery</td><td>Map area being viewed</td></tr>
       <tr><td>gibs.earthdata.nasa.gov<br><small>NASA GIBS</small></td><td>GOES satellite imagery</td><td>Map area being viewed</td></tr>
       <tr><td>mapservices.weather.noaa.gov<br><small>NOAA National Hurricane Center, Weather Prediction Center, Climate Prediction Center</small></td><td>Hurricane and tropical storm cones and tracks; winter storm severity (WSSI), snow and ice probabilities, and the national winter storm map; 6–10 and 8–14 day outlooks</td><td>Your location, rounded to about 1 km, for the winter and outlook lookups at your location. Hurricane data and the national winter map send nothing — every user receives the same data</td></tr>
@@ -284,7 +296,8 @@
       <tr><td>api.open-meteo.com<br><small>Open-Meteo</small></td><td>Long-range outlook (days 8&ndash;14) and next-2-hour precipitation timing &mdash; both model guidance</td><td>Coordinates</td></tr>
       <tr><td>data.rcc-acis.org<br><small>Regional Climate Centers</small></td><td>Daily climate history (rainfall streaks)</td><td>Weather station ID, not your location</td></tr>
       <tr><td>marine-api.open-meteo.com<br><small>Open-Meteo</small></td><td>Wave and marine conditions</td><td>Coordinates</td></tr>
-      <tr><td>air-quality-api.open-meteo.com<br><small>Open-Meteo</small></td><td>Air quality index</td><td>Coordinates</td></tr>
+      <tr><td>airnowgovapi.com<br><small>U.S. EPA AirNow</small></td><td>Air quality observations and forecast</td><td>Coordinates</td></tr>
+      <tr><td>air-quality-api.open-meteo.com<br><small>Open-Meteo</small></td><td>Air quality index where AirNow has no coverage</td><td>Coordinates</td></tr>
       <tr><td>itunes.apple.com<br><small>Apple</small></td><td>Checking whether a newer version of the app is available, at most once a day</td><td>The app&rsquo;s own App Store ID only &mdash; nothing about you or your location</td></tr>
       <tr><td>noaa-alert-relay.nelsok.workers.dev<br><small>Operated by us, on Cloudflare</small></td><td>Background alert delivery</td><td>See the Push Notifications section</td></tr>
     </table>
